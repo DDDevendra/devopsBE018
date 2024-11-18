@@ -1,0 +1,113 @@
+https://youtu.be/S9eCBX-Re8A?t=571
+
+npm init -y
+npm i mongoose express mongodb-memory-server cors mongo nodemon  
+
+
+mongodb+srv://devdangare88:dtaclSkrPz600QSw@cluster1.hd6pwya.mongodb.net/A02
+mongodb cluster username : devdangare88  password : dtaclSkrPz600QSw
+
+
+
+
+1
+0
+0
+6
+4
+2
+0
+4
+8
+2
+3
+0
+1
+2
+5
+4
+0
+2
+3
+1
+5
+0
+7
+5
+0
+6
+0
+5
+4
+3
+
+
+
+ 
+
+
+DELIMITER //
+
+CREATE PROCEDURE merge_records()
+BEGIN
+    DECLARE n_id INT;
+    DECLARE n_name VARCHAR(30);
+    DECLARE done BOOLEAN DEFAULT FALSE;
+
+    DECLARE n_cursor CURSOR FOR 
+        SELECT id, name FROM new_record;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN n_cursor;
+
+    loop_start: LOOP
+        FETCH n_cursor INTO n_id, n_name;
+
+        IF done THEN
+            LEAVE loop_start;
+        END IF;  -- Add this line
+
+        IF NOT EXISTS (SELECT 1 FROM old_record WHERE id = n_id) THEN
+            INSERT INTO old_record VALUES (n_id, n_name);
+        END IF;
+    END LOOP loop_start;
+
+    CLOSE n_cursor;
+END //
+
+
+
+DELIMITER //
+
+CREATE PROCEDURE add_to_a()
+BEGIN
+    DECLARE o_id INT;
+    DECLARE o_name VARCHAR(30);
+    DECLARE done BOOLEAN DEFAULT FALSE;
+    DECLARE o_cursor CURSOR FOR
+        SELECT id, name FROM old_record;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN o_cursor;
+
+    loop_start: LOOP
+        FETCH o_cursor INTO o_id, o_name;
+
+        IF done THEN
+            LEAVE loop_start;
+        END IF;
+
+        IF MOD(o_id, 2) = 0 THEN
+            INSERT INTO a VALUES (o_id, o_name);
+        END IF;
+    END LOOP loop_start;
+
+    CLOSE o_cursor;
+END //
+
+DELIMITER ;
+
+
+DELIMITER ;
